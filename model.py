@@ -1,32 +1,34 @@
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import r2_score, mean_absolute_error
+import streamlit as st
 import pickle
+import numpy as np
+import os
 
-# Load dataset
-df = pd.read_csv("insurance.csv")
+# Load model using absolute path (important for Streamlit Cloud)
+model_path = os.path.join(os.path.dirname(__file__), "insurance_model.pkl")
+model = pickle.load(open(model_path, "rb"))
 
-# Convert categorical data
-df['sex'] = df['sex'].map({'male': 0, 'female': 1})
-df['smoker'] = df['smoker'].map({'no': 0, 'yes': 1})
-df = pd.get_dummies(df, columns=['region'], drop_first=True)
+st.title("🏥 Medical Insurance Cost Predictor")
 
-# Split data
-X = df.drop("charges", axis=1)
-y = df["charges"]
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+age = st.number_input("Age", 18, 100)
+sex = st.selectbox("Sex", ["male", "female"])
+bmi = st.number_input("BMI", 10.0, 60.0)
+children = st.number_input("Children", 0, 5)
+smoker = st.selectbox("Smoker", ["yes", "no"])
+region = st.selectbox("Region", ["southwest", "southeast", "northwest", "northeast"])
 
-# Train model
-model = RandomForestRegressor(n_estimators=200, max_depth=10, random_state=42)
-model.fit(X_train, y_train)
+if st.button("Predict"):
+    sex = 0 if sex == "male" else 1
+    smoker = 1 if smoker == "yes" else 0
 
-# Evaluate
-y_pred = model.predict(X_test)
-print("R² Score:", r2_score(y_test, y_pred))
-print("MAE:", mean_absolute_error(y_test, y_pred))
+    region_map = {
+        "southwest": [1, 0, 0],
+        "southeast": [0, 1, 0],
+        "northwest": [0, 0, 1],
+        "northeast": [0, 0, 0]
+    }
 
-# Save model file
-pickle.dump(model, open("insurance_model.pkl", "wb"))
-print("Model saved as insurance_model.pkl")
+    final = [age, sex, bmi, children, smoker] + region_map[region]
+    final = np.array(final).reshape(1, -1)
+
+    result = model.predict(final)
+    st.success(f"Predicted Insurance Price: ₹ {round(result[0], 2)}")

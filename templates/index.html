@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Medical Insurance Price Prediction</title>
+  </head>
+  <body>
+    <h1>Insurance Price Prediction</h1>
+    <form action="/predict" method="POST">
+      Age: <input type="number" name="age" /><br /><br />
+      BMI: <input type="text" name="bmi" /><br /><br />
+      Children: <input type="number" name="children" /><br /><br />
+      Smoker:
+      <select name="smoker">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+      <br /><br />
+
+      <button type="submit">Predict</button>
+    </form>
+  </body>
+</html>

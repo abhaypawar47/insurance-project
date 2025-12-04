@@ -2,8 +2,6 @@ import streamlit as st
 import pickle
 import numpy as np
 import os
-st.write("Files in working directory:", os.listdir())
-
 
 # Load model using absolute path (important for Streamlit Cloud)
 model_path = os.path.join(os.path.dirname(__file__), "insurance_model.pkl")
